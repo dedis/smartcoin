@@ -1,6 +1,6 @@
 @startuml
 
-class Darc {
+class Darc #yellow {
 }
 
 interface IDarc {
@@ -9,7 +9,7 @@ interface IDarc {
 Darc ..|> IDarc : <<implements>>
 IDarc <.. SmartContract : <<use>>
 
-class SmartContract {
+class SmartContract #yellow {
   GetISmartContract() ISmartContract
 }
 
@@ -80,7 +80,7 @@ package ISmartContract {
   }
 }
 
-class Transaction {
+class Transaction #yellow {
   RegisterContract(contractID string)
 }
 
