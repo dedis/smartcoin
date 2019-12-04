@@ -14,30 +14,70 @@ class SmartContract {
 }
 
 package ITransaction {
-interface Instruction {
-	GetType() int
-	IsSpawn(int) bool
-	IsInvoke(int) bool
-	IsDelete(int) bool
-	GetArgs() []Argument
-	GetContractID() string
-	GetCommand() (string, error)
-}
+  interface Instruction {
+	  GetType2() int
+	  IsSpawn(int) bool
+	  IsInvoke(int) bool
+	  IsDelete(int) bool
+	  GetArgs() Arguments
+	  GetContractID() string
+	  GetCommand() (string, error)
+	  GetInstanceID() InstanceID
+	  GetAction() string
+	  GetSignerIdentities() []darc.Identity
+	  GetSignerCounters() []uint64
+	  GetSignatures() [][]byte
+	  Hash() []byte
+  }
   interface Argument {
-    GetName() string
-    GetValue() []byte
+	  Search(string) []byte
+	  GetAllKeys() []string
   }
   interface ReadOnlyStateTrie {
+	  GetValues(key []byte) (value []byte,\n\tversion uint64, contractID string,\n\tdarcID darc.ID, err error)
+  }
+  interface InstanceID {
+	  GetInstanceID() [32]byte
+	  Slice() []byte
+  }
+  interface Transaction2 {
+	  GetPairingSuite() pairing.Suite
+	  GetServiceName() string
   }
 }
 
 ISmartContract .right.> ITransaction : <<use>>
 ITransaction <|.. Transaction : <<implements>>
 
-interface ISmartContract {
-  Spawn(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error) 
-  Invoke(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error)
-  Delete(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error)
+package ISmartContract {
+  interface ISmartContract2 {
+	  GetContractConfigID() string
+	  GetContractDarcID() string
+	  GetDarcContractIDs() []string
+	  PrintInstruction(itransaction.Instruction) string
+	  GetContractRegistry() *ContractRegistry
+	  RegisterGlobalContract(contractID string, \n\tf func(in []byte) (Contract, error)) error
+	  ContractConfigFromBytes(in []byte) (Contract, error)
+	  ContractSecureDarcFromBytes(in []byte) (Contract, error)
+  }
+  interface ContractRegistry {
+	  Search(string) (func(in []byte) (Contract, error), bool)
+  }
+  interface Contract {
+	  Spawn(itransaction.ReadOnlyStateTrie, \n\titransaction.Instruction, itransaction.Transaction) ([]byte, error)
+	  Invoke(itransaction.ReadOnlyStateTrie, \n\titransaction.Instruction, itransaction.Transaction) ([]byte, error)
+	  Delete(itransaction.ReadOnlyStateTrie, \n\titransaction.Instruction, itransaction.Transaction) ([]byte, error)
+	  FormatMethod(itransaction.Instruction) string
+  }
+  interface Registration {
+    RegisterContract(string) error
+  }
+  interface ReadOnlyContractRegistry {
+    Search(contractID string) (func(in []byte) (Contract, error), bool)  
+  }
+  interface ContractWithRegistry {
+    SetRegistry(ReadOnlyContractRegistry)  
+  }
 }
 
 class Transaction {
