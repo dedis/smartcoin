@@ -1,0 +1,54 @@
+@startuml
+
+class Darc {
+}
+
+interface IDarc {
+}
+
+Darc ..|> IDarc : <<implements>>
+IDarc <.. SmartContract : <<use>>
+
+class SmartContract {
+  GetISmartContract() ISmartContract
+}
+
+package ITransaction {
+interface Instruction {
+	GetType() int
+	IsSpawn(int) bool
+	IsInvoke(int) bool
+	IsDelete(int) bool
+	GetArgs() []Argument
+	GetContractID() string
+	GetCommand() (string, error)
+}
+  interface Argument {
+    GetName() string
+    GetValue() []byte
+  }
+  interface ReadOnlyStateTrie {
+  }
+}
+
+ISmartContract .right.> ITransaction : <<use>>
+ITransaction <|.. Transaction : <<implements>>
+
+interface ISmartContract {
+  Spawn(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error) 
+  Invoke(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error)
+  Delete(itransaction.ReadOnlyStateTrie, itransaction.Instruction) ([]byte, error)
+}
+
+class Transaction {
+  RegisterContract(contractID string)
+}
+
+interface Byzcoin {
+}
+
+Transaction ..|> Byzcoin : <<implements>>
+
+ISmartContract <.. Transaction : <<use>>
+SmartContract ..|> ISmartContract : <<implements>>
+@enduml
